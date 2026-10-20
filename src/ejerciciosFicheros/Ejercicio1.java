@@ -39,7 +39,7 @@ public class Ejercicio1 {
             }
 
             if (!numeros.isEmpty()) {
-                
+
                 for (int i = 0; i < numeros.size(); i++) {
                     writer.write(String.valueOf(numeros.get(i)));
                     if (i < numeros.size() - 1) {
@@ -50,7 +50,7 @@ public class Ejercicio1 {
 
                 for (int i = 0; i < numeros.size(); i += 2) {
                     writer.newLine();
-                    
+
                     if (i + 1 < numeros.size()) {
                         writer.write(numeros.get(i) + " " + numeros.get(i + 1));
                         writer.newLine();
