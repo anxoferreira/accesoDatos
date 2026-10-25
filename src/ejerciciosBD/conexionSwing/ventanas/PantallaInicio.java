@@ -4,6 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 public class PantallaInicio extends JFrame {
 
@@ -15,12 +19,13 @@ public class PantallaInicio extends JFrame {
     private JButton btnConectar;
 
     public PantallaInicio() {
-        setTitle("MySQL - Conexión");
+        setTitle("MySQL");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         // panel principal con GridBagLayout (recomendacion de la ia, muy comoda la
         // verdad)
         JPanel panelPrincipal = new JPanel(new GridBagLayout());
+        panelPrincipal.setBackground(new Color(240, 240, 240));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -96,11 +101,13 @@ public class PantallaInicio extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    // comprobar que se cumplen los requisitos
+    // comprobar que se cumplen los requisitos y conectar por JDBC
     private void validarYConectar() {
         String usuario = txtUsuario.getText().trim();
+        String password = new String(txtContrasena.getPassword());
         String servidor = txtIp.getText().trim();
         String puertoStr = txtPort.getText().trim();
+        String baseDatos = (String) cmbBaseDatos.getSelectedItem();
 
         // campos vacíos
         if (usuario.isEmpty() || servidor.isEmpty() || puertoStr.isEmpty()) {
@@ -129,11 +136,37 @@ public class PantallaInicio extends JFrame {
             return;
         }
 
-        // hacer conexion si no hay problemas
-        JOptionPane.showMessageDialog(this,
-                "¡Validaciones superadas! Procediendo a conectar...",
-                "Éxito",
-                JOptionPane.INFORMATION_MESSAGE);
+        // intento de conexion jdbc y ejecucion de la sentencia
+        String url = "jdbc:mysql://" + servidor + ":" + puertoStr + "/" + baseDatos
+                + "?useSSL=false&serverTimezone=UTC";
+
+        try {
+            Connection conexion = DriverManager.getConnection(url, usuario, password);
+
+            // select de prueba
+            String sql = "select * from actor";
+            Statement stmt = conexion.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+
+            System.out.println("ejecutando sentencia sql: " + sql);
+
+            rs.close();
+            stmt.close();
+            conexion.close();
+
+            // ventana de exito
+            JOptionPane.showMessageDialog(this,
+                    "Conexión realizada con éxito.",
+                    "Conectado",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception ex) {
+            // ventana de error
+            JOptionPane.showMessageDialog(this,
+                    "Imposible conectar",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     // Getters
